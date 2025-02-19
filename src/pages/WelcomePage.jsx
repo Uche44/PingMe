@@ -12,7 +12,7 @@ const WelcomePage = () => {
       <img
         src="/welcome.svg"
         alt="logo"
-        className="w-[80%] h-[8rem] fixed"
+        className="w-[60%] h-[6rem] fixed"
       />
     </div>
   );

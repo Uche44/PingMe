@@ -5,15 +5,18 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { useEffect } from "react";
-// import WelcomePage from "./components/WelcomePage";
+
 import WelcomePage from "./pages/WelcomePage";
 import GetStarted from "./pages/GetStarted";
 import { Auth } from "./pages/Auth";
-// import GetStarted from "./components/GetStarted";
-// import { Login } from "./components/Login";
+import { Toaster } from "react-hot-toast";
 function App() {
   return (
     <>
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+      />
       <Router>
         <Main />
       </Router>
