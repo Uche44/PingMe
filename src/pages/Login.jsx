@@ -12,8 +12,11 @@ const LoginPage = () => {
   // });
 
   const [errors, setErrors] = useState({});
-
-  const { userData, setUserData, login } = useAuth();
+  const [userData, setUserData] = useState({
+    email: "",
+    password: "",
+  });
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
@@ -46,12 +49,10 @@ const LoginPage = () => {
         console.log("Login successful");
         navigate("/create-profile");
       } else {
-        // toast.error("Invalid email or password");
         console.log("unsuccessful");
       }
     } catch (error) {
       console.error("Login failed:", error);
-      //  toast.error("Invalid email or password");
     }
   };
 

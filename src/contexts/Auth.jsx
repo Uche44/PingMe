@@ -1,75 +1,44 @@
 /* eslint-disable react/prop-types */
-
-
-import { useState, createContext, useEffect, useContext, useCallback } from "react";
+import { useState, createContext, useEffect, useContext } from "react";
 import { auth, db } from "../config/firebase";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { getCurrentUser } from "../hooks/useFirebase";
 
 const AuthContext = createContext({ user: null, isLoading: true });
 
 const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [userData, setUserData] = useState({
-    firstname: "",
-    lastname: "",
-    email: "",
-    password: "",
-  });
-
-  const clear = () => {
-    setUser(null);
-    setIsLoading(false);
-  };
-
-  // const authStateChanged = useCallback(()=> {
-  //   async (user) => {
-  //   setIsLoading(true);
-
-  //   if (!user) {
-  //     clear();
-  //     return;}
-  //   },[])
-
-    // const userDoc = await getDoc(doc(db, "users", user.uid));
-
-    // if (userDoc.exists()) {
-    //   setUser({
-    //     firstname: userDoc.data().firstname,
-    //     lastname: userDoc.data().lastname,
-    //     uid: user.uid,
-    //     email: user.email,
-    //   });
-    // }
-    // else {
-    //   setUser({
-    //     firstname: "",
-    //     lastname: "",
-    //     uid: user.uid,
-    //     email: user.email,
-    //   });
-    // }
-
-    setIsLoading(false);
-  };
+  const [curUser, setCurUser] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser)=>{
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setIsLoading(true);
 
-      try{
-        if(!firebaseUser) {
-          setUser(null);
-          setisLoading(false);
+      try {
+        if (firebaseUser) {
+          const userData = await getCurrentUser(firebaseUser);
+
+          if (userData) {
+            setCurUser(userData);
+            setIsAuthenticated(true);
+          }
+        } else {
+          setCurUser(null);
+          setIsAuthenticated(false);
         }
-      } catch(e) {
-        setUser(null);
+      } catch (e) {
+        setCurUser(null);
+        setIsAuthenticated(false);
         throw new Error(e);
+      } finally {
+        setIsLoading(false);
       }
     });
     return () => unsubscribe();
@@ -82,19 +51,23 @@ const AuthProvider = ({ children }) => {
         email,
         password
       );
-      setUserData({ firstname, lastname, email, password });
+      
 
-      await setDoc(doc(db, "users", user.uid), {
-        firstname: firstname,
-        lastname: lastname,
-        email: email,
-        pfp: "",
-        about: "",
+      if (!userCredential) return;
+
+      const userData = {
+        firstname,
+        lastname,
+        email,
+        pfp: null,
+        bio: "",
         createdAt: serverTimestamp(),
-      });
+      };
 
-      console.log(userCredential);
-      return userCredential;
+      await setDoc(doc(db, "users", userCredential.user.uid), userData);
+
+      setCurUser({ id: userCredential.user.uid, ...userData });
+      return userData;
     } catch (error) {
       console.error(error);
     }
@@ -107,7 +80,10 @@ const AuthProvider = ({ children }) => {
         email,
         password
       );
-      setUserData((prev) => ({ ...prev, email: userCredential.user.email }));
+
+      const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
+
+      setCurUser({ id: userCredential.user.uid, ...userDoc.data() });
       return userCredential;
     } catch (error) {
       console.log(error);
@@ -116,7 +92,7 @@ const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ userData, setUserData, user, signUp, login, isLoading }}
+      value={{ curUser, setCurUser, isAuthenticated, signUp, login, isLoading }}
     >
       {children}
     </AuthContext.Provider>
