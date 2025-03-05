@@ -1,126 +1,51 @@
-// import { useState, createContext, useEffect, useContext } from "react";
-// import { auth, db } from "../config/firebase";
-// import {
-//   createUserWithEmailAndPassword,
-//   onAuthStateChanged,
-//   signInWithEmailAndPassword,
-// } from "firebase/auth";
-// import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+/* eslint-disable react/prop-types */
 
-// const AuthContext = createContext({ user: null, isLoading: true });
 
-// const AuthProvider = ({ children }) => {
-//   const [user, setUser] = useState(null);
-//   const [isLoading, setIsLoading] = useState(true);
-
-//   const clear = () => {
-//     setUser(null);
-//     setIsLoading(false);
-//   };
-
-//   const authStateChanged = async (user) => {
-//     setIsLoading(true);
-
-//     if (!user) {
-//       clear();
-//       return;
-//     }
-//     setUser({
-//       firstname: user.firstname,
-//       uid: user.uid,
-//       email: user.email,
-//     });
-
-//     setIsLoading(false);
-//   };
-
-//   useEffect(() => {
-//     const unsubscribe = onAuthStateChanged(auth, authStateChanged);
-
-//     return () => unsubscribe;
-//   }, []);
-
-//   const signUp = async (firstname, lastname, email, password) => {
-//     try {
-//       const res = await createUserWithEmailAndPassword(auth, email, password);
-//       const user = res.user;
-
-//       const data = await setDoc(doc(db, "users", user.uid), {
-//         firstname: firstname, // Store actual user input
-//         lastname: lastname,
-//         email: email,
-//         pfp: "",
-//         about: "",
-//         createdAt: serverTimestamp(),
-//       });
-//       console.log(data);
-//       await setDoc(doc(db, "chats", user.uid), {
-//         chatData: [],
-//       });
-
-//       console.log(user);
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-
-//   const login = async (email, password) => {
-//     try {
-//       await signInWithEmailAndPassword(email, password);
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-
-//   return (
-//     <AuthContext.Provider value={{ user, signUp, login, isLoading }}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// };
-
-// const useAuth = () => useContext(AuthContext);
-
-// export { AuthProvider, useAuth };
-
-import { useState, createContext, useEffect, useContext } from "react";
+import { useState, createContext, useEffect, useContext, useCallback } from "react";
 import { auth, db } from "../config/firebase";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { doc, serverTimestamp, setDoc, getDoc } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 
 const AuthContext = createContext({ user: null, isLoading: true });
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [userData, setUserData] = useState({
+    firstname: "",
+    lastname: "",
+    email: "",
+    password: "",
+  });
 
   const clear = () => {
     setUser(null);
     setIsLoading(false);
   };
 
-  const authStateChanged = async (user) => {
-    setIsLoading(true);
+  // const authStateChanged = useCallback(()=> {
+  //   async (user) => {
+  //   setIsLoading(true);
 
-    if (!user) {
-      clear();
-      return;
-    }
+  //   if (!user) {
+  //     clear();
+  //     return;}
+  //   },[])
 
-    const userDoc = await getDoc(doc(db, "users", user.uid));
+    // const userDoc = await getDoc(doc(db, "users", user.uid));
 
-    if (userDoc.exists()) {
-      setUser({
-        firstname: userDoc.data().firstname,
-        lastname: userDoc.data().lastname,
-        uid: user.uid,
-        email: user.email,
-      });
-    }
+    // if (userDoc.exists()) {
+    //   setUser({
+    //     firstname: userDoc.data().firstname,
+    //     lastname: userDoc.data().lastname,
+    //     uid: user.uid,
+    //     email: user.email,
+    //   });
+    // }
     // else {
     //   setUser({
     //     firstname: "",
@@ -134,14 +59,30 @@ const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, authStateChanged);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser)=>{
+      setIsLoading(true);
+
+      try{
+        if(!firebaseUser) {
+          setUser(null);
+          setisLoading(false);
+        }
+      } catch(e) {
+        setUser(null);
+        throw new Error(e);
+      }
+    });
     return () => unsubscribe();
   }, []);
 
   const signUp = async (firstname, lastname, email, password) => {
     try {
-      const res = await createUserWithEmailAndPassword(auth, email, password);
-      const user = res.user;
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      setUserData({ firstname, lastname, email, password });
 
       await setDoc(doc(db, "users", user.uid), {
         firstname: firstname,
@@ -152,24 +93,31 @@ const AuthProvider = ({ children }) => {
         createdAt: serverTimestamp(),
       });
 
-   
-      console.log(user);
+      console.log(userCredential);
+      return userCredential;
     } catch (error) {
       console.error(error);
-      // throw error;
     }
   };
 
   const login = async (email, password) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      setUserData((prev) => ({ ...prev, email: userCredential.user.email }));
+      return userCredential;
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, signUp, login, isLoading }}>
+    <AuthContext.Provider
+      value={{ userData, setUserData, user, signUp, login, isLoading }}
+    >
       {children}
     </AuthContext.Provider>
   );
