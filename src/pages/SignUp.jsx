@@ -3,20 +3,23 @@ import { useState } from "react";
 import { useAuth } from "../contexts/Auth";
 import { toast } from "react-hot-toast";
 import ErrorBoundary from "../ErrorBoundary";
+import { useNavigate } from "react-router-dom";
 
 const SignUpPage = () => {
+  const navigate = useNavigate();
+
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
-    firstname: '',
-    lastname: '',
-    password: '',
-    email: '',
-    agreeToTerms: false
-  })
-  const {  signUp } = useAuth();
+    firstname: "",
+    lastname: "",
+    password: "",
+    email: "",
+    agreeToTerms: false,
+  });
+  const { signUp } = useAuth();
 
   const handleChange = (e) => {
-    setFormData(prev=>({ ...prev, [e.target.name]: e.target.value }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const validateForm = (e) => {
@@ -42,11 +45,11 @@ const SignUpPage = () => {
 
   const handleSignUp = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm(e)) return;
 
     try {
-       await signUp(
+      await signUp(
         formData.firstname,
         formData.lastname,
         formData.email,
@@ -57,8 +60,7 @@ const SignUpPage = () => {
       //   throw new Error('failed to create new user')
       // }
 
-      
-        toast.success("Signup successful!");
+      toast.success("Signup successful!");
     } catch (error) {
       // toast.error(error);
       console.error(error);
@@ -188,8 +190,10 @@ const SignUpPage = () => {
       <div className="mt-8 h-[8rem] flex flex-col items-center">
         <p className="text-[1rem]">
           Already have an account?
-          <span className="font-semibold cursor-pointer hover:font-bold">
-            {" "}
+          <span
+            onClick={() => navigate("/login")}
+            className="font-semibold cursor-pointer hover:font-bold"
+          >
             Log In
           </span>
         </p>
