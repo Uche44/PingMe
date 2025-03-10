@@ -12,7 +12,7 @@ const WelcomePage = () => {
 
       <button
         onClick={() => navigate("/sign-up")}
-        className="w-[50%] h-[4rem] font-semibold text-[1.1rem] text-white bg-purple-700 rounded-[20px] cursor-pointer hover:brightness-125 shadow-2xl"
+        className="w-[50%] h-[3rem] font-semibold text-[1rem] text-white bg-purple-700 rounded-[20px] cursor-pointer hover:brightness-125 shadow-2xl"
       >
         Get Started
       </button>

@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/Auth";
 import { toast } from "react-hot-toast";
 import ErrorBoundary from "../ErrorBoundary";
 import { useNavigate } from "react-router-dom";
+import { FaSpinner } from "react-icons/fa";
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const SignUpPage = () => {
     email: "",
     agreeToTerms: false,
   });
-  const { signUp } = useAuth();
+  const { signUp, isLoading, setIsLoading } = useAuth();
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -47,18 +48,20 @@ const SignUpPage = () => {
     e.preventDefault();
 
     if (!validateForm(e)) return;
-
+    setIsLoading(true);
     try {
-      await signUp(
+      const data = await signUp(
         formData.firstname,
         formData.lastname,
         formData.email,
         formData.password
       );
 
-      // if(!newUser) {
-      //   throw new Error('failed to create new user')
-      // }
+      if (data) {
+        navigate("/create-profile");
+        setIsLoading(false);
+        localStorage.setItem("user", JSON.stringify(data));
+      }
 
       toast.success("Signup successful!");
     } catch (error) {
@@ -69,6 +72,14 @@ const SignUpPage = () => {
 
   return (
     <div className="w-full h-[100vh] bg-white px-[1.2rem]">
+      {isLoading && (
+        <div className="spin w-full h-[100vh] fixed bg-white flex flex-col items-center justify-center">
+          <FaSpinner className="animate-spin text-purple-700 text-[3rem]" />
+          <p className="text-purple-700 font-[600] mt-4">
+            Creating your account...
+          </p>
+        </div>
+      )}
       <h2 className="text-2xl font-bold text-purple-700 mt-[3rem] text-center">
         Let&apos;s Get Your Account Setup!
       </h2>
@@ -179,6 +190,7 @@ const SignUpPage = () => {
 
           {/* Submit Button */}
           <button
+            onClick={() => navigate("/sign-up")}
             type="submit"
             className="w-full h-[3.2rem] bg-purple-700 rounded-[30px] mt-10 text-white font-semibold text-[16px] hover:brightness-125 cursor-pointer"
           >

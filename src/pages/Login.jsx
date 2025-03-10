@@ -119,7 +119,7 @@ const LoginPage = () => {
           Don&apos;t have an account?
           <span
             className="font-semibold cursor-pointer hover:font-bold"
-            onClick={() => navigate("/sign-up")}
+            // onClick={() => navigate("/sign-up")}
           >
             Sign Up
           </span>

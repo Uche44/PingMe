@@ -1,4 +1,4 @@
-const ProfileTwo = ({ formData, setFormData, errors, setErrors }) => {
+const ProfileTwo = ({ formData, setFormData, errors, setErrors, handleChange }) => {
   return (
     <>
       <h2 className="text-3xl font-bold text-purple-700 mt-[3rem] mb-[2rem]">
@@ -12,7 +12,7 @@ const ProfileTwo = ({ formData, setFormData, errors, setErrors }) => {
           Profile Image
         </label>
         <input
-          // onChange={handleChange}
+          onChange={handleChange}
           value={formData.pfp}
           type="file"
           name="pfp"
@@ -33,7 +33,7 @@ const ProfileTwo = ({ formData, setFormData, errors, setErrors }) => {
           Bio
         </label>
         <textarea
-          //   onChange={handleChange}
+            onChange={handleChange}
           value={formData.bio}
           type="text"
           name="bio"

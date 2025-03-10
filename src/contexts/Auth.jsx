@@ -12,7 +12,6 @@ import { getCurrentUser } from "../hooks/useFirebase";
 const AuthContext = createContext({ user: null, isLoading: true });
 
 const AuthProvider = ({ children }) => {
-
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [curUser, setCurUser] = useState(null);
@@ -51,7 +50,6 @@ const AuthProvider = ({ children }) => {
         email,
         password
       );
-      
 
       if (!userCredential) return;
 
@@ -92,7 +90,15 @@ const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ curUser, setCurUser, isAuthenticated, signUp, login, isLoading }}
+      value={{
+        curUser,
+        setCurUser,
+        isAuthenticated,
+        signUp,
+        login,
+        isLoading,
+        setIsLoading,
+      }}
     >
       {children}
     </AuthContext.Provider>
