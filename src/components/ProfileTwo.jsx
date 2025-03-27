@@ -1,4 +1,27 @@
-const ProfileTwo = ({ formData, setFormData, errors, setErrors, handleChange }) => {
+import { useState, useEffect } from "react";
+
+const ProfileTwo = ({
+  // eslint-disable-next-line react/prop-types
+  profileData,
+  // setProfileData,
+  errors,
+  setErrors,
+  handleChange,
+}) => {
+  const [imagePreview, setImagePreview] = useState("");
+
+  useEffect(() => {
+    if (profileData.pfp && typeof profileData.pfp === "object") {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(profileData.pfp);
+    } else {
+      setImagePreview(profileData.pfp);
+    }
+  }, [profileData.pfp]);
+
   return (
     <>
       <h2 className="text-3xl font-bold text-purple-700 mt-[3rem] mb-[2rem]">
@@ -13,7 +36,7 @@ const ProfileTwo = ({ formData, setFormData, errors, setErrors, handleChange }) 
         </label>
         <input
           onChange={handleChange}
-          value={formData.pfp}
+          value={profileData.pfp}
           type="file"
           name="pfp"
           id="pfp"
@@ -22,6 +45,13 @@ const ProfileTwo = ({ formData, setFormData, errors, setErrors, handleChange }) 
         />
         {errors.pfp && (
           <p className="text-red-600 font-semibold">{errors.pfp}</p>
+        )}
+        {imagePreview && (
+          <img
+            src={imagePreview}
+            alt="Profile Preview"
+            className="mt-4"
+          />
         )}
       </div>
 
@@ -33,14 +63,18 @@ const ProfileTwo = ({ formData, setFormData, errors, setErrors, handleChange }) 
           Bio
         </label>
         <textarea
-            onChange={handleChange}
-          value={formData.bio}
+          onChange={handleChange}
+          value={profileData.bio}
           type="text"
           name="bio"
           id="bio"
           className="w-full focus:outline-none border-b-2 h-[3.5rem] active:border-b-purple-400 px-2"
           required
         ></textarea>
+
+        {errors.bio && (
+          <p className="text-red-600 font-semibold">{errors.bio}</p>
+        )}
       </div>
     </>
   );

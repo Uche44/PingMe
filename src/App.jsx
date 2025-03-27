@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { AuthProvider } from "./contexts/Auth";
+import { ProfileProvider } from "./contexts/ProfileContext";
 import SignUpPage from "./pages/SignUp";
 import LoginPage from "./pages/Login";
 import WelcomePage from "./pages/WelcomePage";
@@ -28,11 +29,13 @@ const router = createBrowserRouter([
 const App = () => {
   return (
     <AuthProvider>
-      <Toaster
-        position="top-center"
-        reverseOrder={false}
-      />
-      <RouterProvider router={router} />
+      <ProfileProvider>
+        <Toaster
+          position="top-center"
+          reverseOrder={false}
+        />
+        <RouterProvider router={router} />
+      </ProfileProvider>
     </AuthProvider>
   );
 };

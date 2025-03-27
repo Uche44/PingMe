@@ -2,8 +2,11 @@ import { useReducer, useState } from "react";
 import ProfileOne from "../components/ProfFormOne";
 import ProfileTwo from "../components/ProfileTwo";
 import { useAuth } from "../contexts/Auth";
+import { useProfile } from "../contexts/ProfileContext";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
+import { uploadImage } from "../lib/imageUpload";
+
 const initialState = { firstPage: true, secondPage: false };
 
 const reducer = (state, action) => {
@@ -21,48 +24,53 @@ const CreateProfile = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const { curUser, isLoading, setIsLoading } = useAuth();
-  console.log(curUser);
-  const [formData, setFormData] = useState({
-    firstname: curUser.firstname,
-    lastname: curUser.lastname,
-    phone: "",
-    gender: "",
-    dob: "",
-    pfp: "",
-    bio: "",
-  });
+  const { profileData, setProfileData } = useProfile();
+  // console.log(curUser);
 
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value, files } = e.target;
+    if (name === "pfp" && files.length > 0) {
+      setProfileData((prev) => ({ ...prev, pfp: files[0] }));
+    } else {
+      setProfileData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const validateForm = (e) => {
     e.preventDefault();
     let newErrors = {};
 
-    if (!/^\d{11}$/.test(formData.phoneNumber)) {
+    if (!/^\d{11}$/.test(profileData.phoneNumber)) {
       newErrors.phoneNumber = "Phone number must be exactly 11 digits.";
     }
 
-    if (!["male", "female"].includes(formData.gender.toLowerCase())) {
+    if (!["male", "female"].includes(profileData.gender.toLowerCase())) {
       newErrors.gender = "Gender must be either 'male' or 'female'.";
     }
 
-    const dob = new Date(formData.dob);
+    const dob = new Date(profileData.dob);
     const today = new Date();
     if (isNaN(dob.getTime()) || dob >= today) {
       newErrors.dob = "Enter a valid date of birth (past date only).";
     }
 
-    if (!formData.pfp) {
+    if (!profileData.pfp) {
       newErrors.pfp = "Profile picture is required.";
     } else {
       const allowedTypes = ["image/jpeg", "image/png"];
-      if (!allowedTypes.includes(formData.pfp)) {
+      if (!allowedTypes.includes(profileData.pfp)) {
         newErrors.pfp = "Only JPG and PNG formats are allowed.";
       }
+    }
+
+    if (
+      !profileData.bio ||
+      profileData.bio.length < 10 ||
+      profileData.bio.length > 300
+    ) {
+      newErrors.bio = "Bio must be between 10 and 300 characters.";
     }
 
     setErrors(newErrors);
@@ -75,13 +83,22 @@ const CreateProfile = () => {
     if (!validateForm(e)) return;
     setIsLoading(true);
     try {
-      const profile = await updateDoc(doc(db, "users", "user.uid"));
+      let imageUrl = "";
+      if (profileData.pfp) {
+        imageUrl = await uploadImage(profileData.pfp);
+      }
+      const profile = await updateDoc(doc(db, "users", curUser.id), {
+        ...profileData,
+        pfp: imageUrl,
+      });
 
       if (profile) {
         console.log(profile);
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -98,8 +115,8 @@ const CreateProfile = () => {
       >
         {state.firstPage && (
           <ProfileOne
-            formData={formData}
-            setFormData={setFormData}
+            profileData={profileData}
+            // setProfileData={setProfileData}
             errors={errors}
             setErrors={setErrors}
             handleChange={handleChange}
@@ -107,8 +124,8 @@ const CreateProfile = () => {
         )}
         {state.secondPage && (
           <ProfileTwo
-            formData={formData}
-            setFormData={setFormData}
+            profileData={profileData}
+            // setProfileData={setProfileData}
             errors={errors}
             setErrors={setErrors}
             handleChange={handleChange}

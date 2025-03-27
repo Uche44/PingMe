@@ -1,4 +1,4 @@
-const ProfileOne = ({ formData, setFormData, errors, setErrors, handleChange }) => {
+const ProfileOne = ({ profileData, errors, setErrors, handleChange }) => {
   return (
     <>
       <div className="h-[6rem] w-full flex items-start gap-2">
@@ -11,8 +11,8 @@ const ProfileOne = ({ formData, setFormData, errors, setErrors, handleChange }) 
             First Name
           </label>
           <input
-              onChange={handleChange}
-            value={formData.firstname}
+            onChange={handleChange}
+            value={profileData.firstname}
             type="text"
             name="firstname"
             id="firstname"
@@ -20,7 +20,6 @@ const ProfileOne = ({ formData, setFormData, errors, setErrors, handleChange }) 
             required
             disabled
           />
-         
         </div>
 
         {/* Last Name */}
@@ -32,8 +31,8 @@ const ProfileOne = ({ formData, setFormData, errors, setErrors, handleChange }) 
             Last Name
           </label>
           <input
-              onChange={handleChange}
-            value={formData.lastname}
+            onChange={handleChange}
+            value={profileData.lastname}
             type="text"
             name="lastname"
             id="lastname"
@@ -41,11 +40,9 @@ const ProfileOne = ({ formData, setFormData, errors, setErrors, handleChange }) 
             disabled
             required
           />
-         
         </div>
       </div>
 
-    
       <div className="h-[6rem] mt-2 w-full flex flex-col items-start gap-2">
         <label
           htmlFor="phone"
@@ -55,7 +52,7 @@ const ProfileOne = ({ formData, setFormData, errors, setErrors, handleChange }) 
         </label>
         <input
           onChange={handleChange}
-          value={formData.phone}
+          value={profileData.phone}
           type="text"
           name="phone"
           id="phone"
@@ -63,11 +60,10 @@ const ProfileOne = ({ formData, setFormData, errors, setErrors, handleChange }) 
           required
         />
         {errors.phone && (
-                <p className="text-red-600 font-semibold">{errors.email}</p>
-              )}
+          <p className="text-red-600 font-semibold">{errors.email}</p>
+        )}
       </div>
 
-      
       <div className="h-[6rem] mt-2 w-full flex flex-col items-start gap-2">
         <label
           htmlFor="gender"
@@ -77,7 +73,7 @@ const ProfileOne = ({ formData, setFormData, errors, setErrors, handleChange }) 
         </label>
         <select
           className="w-full h-[3.5rem] border-b-2 focus:outline-none"
-          value={formData.gender}
+          value={profileData.gender}
           onChange={handleChange}
           required
         >
@@ -86,8 +82,8 @@ const ProfileOne = ({ formData, setFormData, errors, setErrors, handleChange }) 
           <option value="female">Female</option>
         </select>
         {errors.gender && (
-                <p className="text-red-600 font-semibold">{errors.gender}</p>
-              )}
+          <p className="text-red-600 font-semibold">{errors.gender}</p>
+        )}
       </div>
 
       <div className="h-[6rem] mt-2 w-full flex flex-col items-start gap-2">
@@ -99,7 +95,7 @@ const ProfileOne = ({ formData, setFormData, errors, setErrors, handleChange }) 
         </label>
         <input
           onChange={handleChange}
-          value={formData.dob}
+          value={profileData.dob}
           type="date"
           name="dob"
           id="dob"
@@ -107,8 +103,8 @@ const ProfileOne = ({ formData, setFormData, errors, setErrors, handleChange }) 
           required
         />
         {errors.dob && (
-                <p className="text-red-600 font-semibold">{errors.dob}</p>
-              )}
+          <p className="text-red-600 font-semibold">{errors.dob}</p>
+        )}
       </div>
     </>
   );

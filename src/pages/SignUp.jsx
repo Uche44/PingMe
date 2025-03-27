@@ -73,7 +73,7 @@ const SignUpPage = () => {
   return (
     <div className="w-full h-[100vh] bg-white px-[1.2rem]">
       {isLoading && (
-        <div className="spin w-full h-[100vh] fixed bg-white flex flex-col items-center justify-center">
+        <div className="spin w-full h-[100vh] fixed bottom-0 bg-white flex flex-col items-center justify-center">
           <FaSpinner className="animate-spin text-purple-700 text-[3rem]" />
           <p className="text-purple-700 font-[600] mt-4">
             Creating your account...

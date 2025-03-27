@@ -1,19 +1,28 @@
 import { createContext, useContext, useState } from "react";
+// import { useAuth } from "./Auth";
 
-const NameContext = createContext();
+const ProfileContext = createContext();
 
-const NameProvider = ({ children }) => {
+export const ProfileProvider = ({ children }) => {
+  // const { curUser } = useAuth();
 
-
-
-  const [userName, setUserName] = useState({
-    firstname: "",
-    lastname: "",
+  const [profileData, setProfileData] = useState({
+    firstname: '',
+    lastname: '',
+    phone: "",
+    gender: "",
+    dob: "",
+    pfp: "",
+    bio: "",
   });
 
-  return <NameContext.Provider>{children}</NameContext.Provider>;
+  return (
+    <ProfileContext.Provider value={{ profileData, setProfileData }}>
+      {children}
+    </ProfileContext.Provider>
+  );
 };
 
-
-
-export { NameProvider };
+export const useProfile = () => {
+  return useContext(ProfileContext);
+};
